@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gold of Olympus VIP</title>
+    <style>
+        body { background: #050505; color: #ffd700; text-align: center; font-family: 'Cairo', sans-serif; margin: 0; overflow: hidden; }
+        .game-container { height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; background: radial-gradient(circle, #1a1a1a 0%, #000 100%); }
+        .header { position: absolute; top: 0; width: 100%; padding: 20px; background: rgba(255, 215, 0, 0.1); border-bottom: 2px solid #ffd700; display: flex; justify-content: space-around; font-size: 1.5rem; }
+        .slot-machine { border: 8px solid #ffd700; padding: 40px; border-radius: 30px; background: rgba(0,0,0,0.9); box-shadow: 0 0 100px #ffd70055; transition: 0.1s; }
+        .reels { display: flex; gap: 20px; font-size: 100px; margin: 30px 0; text-shadow: 0 0 30px #ffd700; }
+        .multiplier-tag { color: #ff00ea; font-size: 2rem; font-weight: bold; height: 40px; }
+        .spin-btn { background: linear-gradient(180deg, #fff3b0 0%, #ffd700 50%, #b8860b 100%); color: #000; border: none; padding: 25px 80px; font-size: 28px; font-weight: bold; border-radius: 60px; cursor: pointer; box-shadow: 0 10px 20px rgba(0,0,0,0.5); text-transform: uppercase; }
+        .spin-btn:active { transform: scale(0.95); }
+        .win-anim { animation: shake 0.5s infinite; }
+        @keyframes shake { 0% { transform: translate(1px, 1px) rotate(0deg); } 10% { transform: translate(-1px, -2px) rotate(-1deg); } 20% { transform: translate(-3px, 0px) rotate(1deg); } }
+    </style>
+</head>
+<body>
+
+<div class="game-container" id="main-frame">
+    <div class="header">
+        <span>🔱 VIP OLYMPUS</span>
+        <div style="color: #fff;">💰 <span id="bal-display">0</span> ليرة</div>
+    </div>
+
+    <div class="slot-machine" id="machine">
+        <div class="multiplier-tag" id="multi-text"></div>
+        <div class="reels" id="slots">🏛️⚡️👑</div>
+        <button class="spin-btn" onclick="startSpin()">إسحب الصاعقة</button>
+        <div id="status" style="margin-top: 20px; font-size: 1.2rem;">الرهان: 300 ليرة</div>
+    </div>
+</div>
+
+<script>
+    // روابط الأصوات الملحمية
+    const sfxSpin = new Audio('https://www.soundjay.com/nature/sounds/thunder-2.mp3');
+    const sfxWin = new Audio('https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3');
+    const sfxJackpot = new Audio('https://www.soundjay.com/misc/sounds/clinking-coins-01.mp3');
+
+    const urlParams = new URLSearchParams(window.location.search);
+    let balance = parseInt(urlParams.get('balance')) || 10000;
+    document.getElementById('bal-display').innerText = balance.toLocaleString();
+
+    const icons = ['⚡️', '👑', '💎', '🏺', '🔱', '🏛️', '💰'];
+    const multis = ['X2', 'X5', 'X10', 'X50'];
+
+    function startSpin() {
+        if (balance < 300) {
+            alert("رصيدك لا يكفي يا ملك!");
+            return;
+        }
+
+        balance -= 300;
+        document.getElementById('bal-display').innerText = balance.toLocaleString();
+        document.getElementById('machine').classList.remove('win-anim');
+        document.getElementById('multi-text').innerText = "";
+        sfxSpin.play();
+
+        let timer = 0;
+        let interval = setInterval(() => {
+            const r1 = icons[Math.floor(Math.random() * icons.length)];
+            const r2 = icons[Math.floor(Math.random() * icons.length)];
+            const r3 = icons[Math.floor(Math.random() * icons.length)];
+            document.getElementById('slots').innerText = r1 + r2 + r3;
+            timer++;
+
+            if (timer > 25) {
+                clearInterval(interval);
+                checkResults(r1, r2, r3);
+            }
+        }, 60);
+    }
+
+    function checkResults(a, b, c) {
+        if (a === b && b === c) {
+            const m = multis[Math.floor(Math.random() * multis.length)];
+            document.getElementById('multi-text').innerText = "🔥 مضاعف " + m + " 🔥";
+            document.getElementById('machine').classList.add('win-anim');
+            sfxWin.play();
+            sfxJackpot.play();
+            setTimeout(() => alert("🎊 مبروك! فوز أسطوري بمضاعف " + m), 500);
+        } else if (a === b || b === c || a === c) {
+            sfxWin.play();
+            document.getElementById('status').innerText = "فوز بسيط! ✨";
+        } else {
+            document.getElementById('status').innerText = "جرب حظك مرة ثانية..";
+        }
+    }
+</script>
+
+</body>
+</html>
